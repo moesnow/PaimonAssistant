@@ -3,3 +3,5 @@ Numpy
 opencv-python
 pygetwindow
 keyboard
+Pillow
+pyscreeze
