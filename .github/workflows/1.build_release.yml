@@ -1,0 +1,52 @@
+name: Build & Release App
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+permissions:
+  contents: write
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: 'false'
+
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.0'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Generate program
+        run: |
+          pyinstaller -D --distpath .\dist\ -i .\img\Paimon.ico --contents-directory libraries --uac-admin -n "PaimonAssistant" AutoClick.py -y -w
+
+      - name: Move assets to dist directory
+        run: |
+          xcopy /E /I /Y .\img\ .\dist\PaimonAssistant\img\
+          xcopy /Y .\README.md .\dist\PaimonAssistant\
+
+      - name: Create zip archive
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          ren .\dist\PaimonAssistant PaimonAssistant_${{ github.ref_name }}
+          powershell Compress-Archive -Path .\dist\PaimonAssistant_${{ github.ref_name }}\ -DestinationPath .\dist\PaimonAssistant_${{ github.ref_name }}.zip -Force
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          name: PaimonAssistant ${{ github.ref_name }}
+          files: |
+           ./dist/PaimonAssistant_${{ github.ref_name }}.zip
+          prerelease: true
