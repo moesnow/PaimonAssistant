@@ -6,7 +6,7 @@ on:
       - '**.py'
   push:
     branches:
-      - main
+      - click
     paths:
       - '**.py'
 permissions:
@@ -38,6 +38,7 @@ jobs:
 
       - name: Move assets to dist directory
         run: |
+          ren .\dist\PaimonAssistant\PaimonAssistant.exe "Paimon Assistant.exe"
           xcopy /E /I /Y .\img\ .\dist\PaimonAssistant\img\
           xcopy /Y .\README.md .\dist\PaimonAssistant\
 
