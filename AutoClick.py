@@ -67,37 +67,38 @@ class AutoClickerApp:
     def check_game_status(self):
         window = gw.getWindowsWithTitle(game_title_name)
         if window and window[0].isActive:
-            print("游戏激活")
             screenshot = cv2.cvtColor(np.array(self.take_screenshot()), cv2.COLOR_RGB2GRAY)
+
             if self.windows[0].height > 1440:
                 result = cv2.matchTemplate(screenshot, start_4k, cv2.TM_CCOEFF_NORMED)
             else:
                 result = cv2.matchTemplate(screenshot, start_1080, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, _ = cv2.minMaxLoc(result)
-            print(max_val)
             if max_val > 0.9:
                 self.start_clicking()
-                if self.windows[0].height > 1440:
-                    result = cv2.matchTemplate(screenshot, select_4k, cv2.TM_CCOEFF_NORMED)
-                else:
-                    result = cv2.matchTemplate(screenshot, select_1080, cv2.TM_CCOEFF_NORMED)
-                _, max_val, _, max_loc = cv2.minMaxLoc(result)
-                if max_val > 0.8:
-                    top_left = (max_loc[0] + self.windows[0].left, max_loc[1] + self.windows[0].top)
-                    pyautogui.click(top_left)
             else:
                 self.stop_clicking()
-                if self.windows[0].height > 1440:
-                    result = cv2.matchTemplate(screenshot, continue_4k, cv2.TM_CCOEFF_NORMED)
-                else:
-                    result = cv2.matchTemplate(screenshot, continue_1080, cv2.TM_CCOEFF_NORMED)
-                _, max_val, _, max_loc = cv2.minMaxLoc(result)
-                if max_val > 0.8:
-                    top_left = (max_loc[0] + self.windows[0].left, max_loc[1] + self.windows[0].top)
-                    pyautogui.click(top_left)
+
+            if self.windows[0].height > 1440:
+                result = cv2.matchTemplate(screenshot, select_4k, cv2.TM_CCOEFF_NORMED)
+            else:
+                result = cv2.matchTemplate(screenshot, select_1080, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(result)
+            if max_val > 0.8:
+                top_left = (max_loc[0] + self.windows[0].left, max_loc[1] + self.windows[0].top)
+                pyautogui.click(top_left)
+
+            if self.windows[0].height > 1440:
+                result = cv2.matchTemplate(screenshot, continue_4k, cv2.TM_CCOEFF_NORMED)
+            else:
+                result = cv2.matchTemplate(screenshot, continue_1080, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(result)
+            if max_val > 0.8:
+                top_left = (max_loc[0] + self.windows[0].left, max_loc[1] + self.windows[0].top)
+                pyautogui.click(top_left)
         else:
             self.stop_clicking()
-        # 定时检查游戏状态
+
         self.root.after(500, self.check_game_status)
 
     def toggle_clicking(self):
